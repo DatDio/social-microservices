@@ -1,0 +1,21 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: user-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+keycloak:
+  server-url: http://localhost:8085/   # URL của Keycloak server (dùng đúng port bạn đã chạy)
+  realm: myrealm                      # realm đang dùng
+  client-id: gateway-service          # client đăng ký trong Keycloak (hoặc user-service nếu tạo riêng)
+  client-secret: ZfG9cTYoO4yxd6BBXrTDIVyI6Zjcsftn      # client secret trong Keycloak (copy đúng)

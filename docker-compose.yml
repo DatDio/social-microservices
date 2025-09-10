@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.2
+    container_name: keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8085:8080"
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  eruka-service:
+    build: ./eruka-service  # build image từ Dockerfile trong thư mục eruka-service
+    container_name: eruka-service
+    ports:
+      - "8761:8761"          # Eureka server UI
+    depends_on:
+      - keycloak
+      - redis
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+#  gateway-service:
+#    build: ./gateway-service
+#    container_name: gateway-service
+#    ports:
+#      - "8082:8082"
+#    depends_on:
+#      - keycloak
+#      - redis
+
+#  auth-service:
+#    build: ./auth-service
+#    container_name: auth-service
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - keycloak
