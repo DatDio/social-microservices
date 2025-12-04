@@ -1,9 +1,6 @@
 package com.example.gatewayservice.configs;
 
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
-import org.springframework.cloud.gateway.route.RouteLocator;
-import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -36,28 +33,27 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * 5️⃣ Global Filter: Log + gắn Correlation ID
-     */
     @Bean
-    public GlobalFilter logFilter() {
-        return (exchange, chain) -> {
-            String correlationId = UUID.randomUUID().toString();
-            exchange.getRequest().mutate()
-                    .header("X-Correlation-Id", correlationId)
-                    .build();
+    public GlobalFilter logAndUserIdFilter() {
+        return (exchange, chain) -> exchange.getPrincipal()
+                .cast(org.springframework.security.oauth2.jwt.Jwt.class)
+                .defaultIfEmpty(null)
+                .flatMap(jwt -> {
+                    String userId = jwt != null ? jwt.getSubject() : null;
+                    String correlationId = UUID.randomUUID().toString();
 
-            System.out.println("[Gateway] [" + LocalDateTime.now() + "] "
-                    + exchange.getRequest().getMethod() + " "
-                    + exchange.getRequest().getURI());
+                    var mutatedRequest = exchange.getRequest().mutate()
+                            .header("X-Correlation-Id", correlationId)
+                            .headers(headers -> {
+                                if (userId != null) headers.set("X-User-Id", userId);
+                            })
+                            .build();
 
-            return chain.filter(exchange)
-                    .then(Mono.fromRunnable(() -> {
-                        HttpStatus statusCode = (HttpStatus) exchange.getResponse().getStatusCode();
-                        System.out.println("[Gateway] Response Status: " + statusCode);
-                    }));
-        };
+                    return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                });
     }
+
+
 
 
 }

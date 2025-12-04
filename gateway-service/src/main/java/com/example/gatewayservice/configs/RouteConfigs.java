@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RouteConfigs {
     /**
-     * 2️⃣ Định nghĩa Route bằng code thay cho YAML
+     * Định nghĩa Route bằng code thay cho YAML
      * Có thể thêm nhiều service dễ dàng
      */
     @Bean

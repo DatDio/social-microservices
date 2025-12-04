@@ -1,6 +1,6 @@
 package com.example.authservice.configs;
 
-import com.nimbusds.jose.shaded.gson.JsonSerializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -34,11 +34,13 @@ public class KafkaConfig {
     }
 
     @Bean
-    public NewTopic permissionChangedTopic() {
-        return TopicBuilder.name("permission-changed")
-                .partitions(3)
-                .replicas(1)
-                .build();
+    public NewTopic abacPolicyChangedTopic() {
+        return TopicBuilder.name("abac-policy-changed").partitions(3).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic userAttributesChangedTopic() {
+        return TopicBuilder.name("user-attributes-changed").partitions(3).replicas(1).build();
     }
 }
 

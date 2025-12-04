@@ -22,3 +22,36 @@ spring:
       resource server:
         jwt:
           issuer-uri: http://localhost:8080/realms/myrealm
+
+  kafka:
+    bootstrap-servers: localhost:9092   # nếu chạy local host → host OS truy cập được
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer: # chỉ cần nếu auth-service lắng nghe event (optional)
+      group-id: auth-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+  datasource:
+    #url: jdbc:mysql://mysql:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/auth_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: admin
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa: # <-- Đưa jpa ra cùng cấp với datasource
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect  # nên thêm cho chắc chắn
+keycloak:
+  server-url: http://localhost:8085/   # URL của Keycloak server (dùng đúng port bạn đã chạy)
+  realm: myrealm                      # realm đang dùng
+  client-id: gateway-service          # client đăng ký trong Keycloak (hoặc user-service nếu tạo riêng)
+  client-secret: ZfG9cTYoO4yxd6BBXrTDIVyI6Zjcsftn      # client secret trong Keycloak (copy đúng)
